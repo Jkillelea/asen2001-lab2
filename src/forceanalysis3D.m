@@ -12,8 +12,6 @@ function [barforces, reacforces] = forceanalysis3D(Joints_Array, MemberConnectiv
   %
   % output: barforces    - force magnitude in bars
   %         reacforces   - reaction forces
-  %
-  % Author: Kurt Maute, Sept 21 2011
 
   % extract number of joints, bars, reactions, and loads
   numjoints = size(Joints_Array, 1);
@@ -73,7 +71,7 @@ function [barforces, reacforces] = forceanalysis3D(Joints_Array, MemberConnectiv
       % equation id numbers
       idx = 3*jid-2;
       idy = 3*jid-1;
-      idz = 3*jid; %added this
+      idz = 3*jid-0; %added this
 
       % add unit vector into Amat
       Amat([idx idy idz], numbars + i) = ReactionVector_Array(i,:); %added idz
@@ -86,9 +84,9 @@ function [barforces, reacforces] = forceanalysis3D(Joints_Array, MemberConnectiv
       jid = LoadJoints_Array(i);
 
       % equation id numbers
-      idx = 2*jid-1;
-      idy = 2*jid;
-      idz = 2*jid+1; %added this
+      idx = 3*jid-2;
+      idy = 3*jid-1;
+      idz = 3*jid-0; %added this
 
       % add unit vector into bvec (sign change)
       bvec([idx idy idz]) = -1 * LoadVectors_Array(i,:); %added idz
@@ -98,8 +96,6 @@ function [barforces, reacforces] = forceanalysis3D(Joints_Array, MemberConnectiv
   if rank(Amat) ~= numeqns
       error('Amat is rank defficient: %d < %d\n',rank(Amat),numeqns);
   end
-
-  % disp(Amat);
 
   % solve system
   xvec = Amat \ bvec;
