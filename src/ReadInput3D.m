@@ -1,11 +1,6 @@
 function [Joints_Array, MemberConnectivity_Array, ReactionJoints_Array, ReactionVector_Array, LoadJoints_Array, LoadVectors_Array] = ReadInput3D(InputFile)
-% function [Joints_Array, MemberConnectivity_Array, ReactionJoints_Array, ReactionVector_Array, LoadJoints_Array, LoadVectors_Array] = readinput(InputFile)
-%
-% read input file
-%
-% input: inputfile - name of input file
-%
-% output: Joints_Array             - coordinates of joints
+% output:
+%         Joints_Array             - coordinates of joints
 %         MemberConnectivity_Array - connectivity
 %         ReactionJoints_Array     - joint id where reaction acts on
 %         ReactionVector_Array     - unit vector associated with reaction force
@@ -16,7 +11,7 @@ function [Joints_Array, MemberConnectivity_Array, ReactionJoints_Array, Reaction
 % open inputfile
 fid = fopen(InputFile);
 
-if fid < 0;error('inputfile does not exist');end
+if (fid < 0); error('inputfile does not exist'); end
 
 % initialze counters and input block id
 counter = 0;
@@ -37,7 +32,7 @@ while line > 0
     switch inpblk
         case 1 % read number of joints, bars, reactions, and loads
 
-            dims=sscanf(line,'%d%d%d%d%d');
+            dims = sscanf(line,'%d%d%d%d%d');
 
             numjoints = dims(1);
             numbars   = dims(2);
@@ -48,12 +43,12 @@ while line > 0
             % if numreact~=3; error('incorrect number of reaction forces');end
 
             % initialize arrays
-            Joints_Array       = zeros(numjoints,3);
+            Joints_Array             = zeros(numjoints,3);
             MemberConnectivity_Array = zeros(numbars,2);
-            ReactionJoints_Array   = zeros(numreact,1);
+            ReactionJoints_Array     = zeros(numreact,1);
             ReactionVector_Array     = zeros(numreact,3);
-            LoadJoints_Array   = zeros(numloads,1);
-            LoadVectors_Array     = zeros(numloads,3);
+            LoadJoints_Array         = zeros(numloads,1);
+            LoadVectors_Array        = zeros(numloads,3);
 
             % check whether system satisfies static determiancy condition
             % if 2*numjoints - 3 ~= numbars
@@ -78,7 +73,7 @@ while line > 0
             end
 
             % store coordinates of joints
-            Joints_Array(jointid,:)=tmp(2:4);
+            Joints_Array(jointid,:) = tmp(2:4);
 
             % expect next input block to be connectivity
             if counter == numjoints
