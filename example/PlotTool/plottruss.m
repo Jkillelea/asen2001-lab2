@@ -1,14 +1,13 @@
-function plottruss(xyz,topo,eforce,fbc,rads,pltflags)
+function plottruss(xyz, topo, eforce, fbc, rads, pltflags)
 %function plottruss(xyz,topo,eforce,fbc,rads,pltflags)
-%----------------------------------------------------
 %
 %  plot 3-truss, bars colored accoring to force
 %  supported nodes are plotted in red
 %  non-supported nodes are plotted in black
 %
-%  Input:   xyz -  x,y,and z coordinates of nodes 
+%  Input:   xyz -  x,y,and z coordinates of nodes
 %                  ( number of nodes x 3 )
-% 
+%
 %                    Node 1 - [ x1 y1 z1;
 %                    Node 2 -   x2 y2 z2;
 %                      ...        ...
@@ -16,7 +15,7 @@ function plottruss(xyz,topo,eforce,fbc,rads,pltflags)
 %
 %           topo -  topology of truss
 %                   ( number of bars x 2 )
-% 
+%
 %                    Member 1 - [ NodeA NodeB;
 %                    Member 2 -   NodeD NodeC;
 %                      ...           ...
@@ -42,13 +41,8 @@ function plottruss(xyz,topo,eforce,fbc,rads,pltflags)
 %                      1. component: 0/1 - plot node id numbers
 %                      2. component: 0/1 - plot bar id numbers
 %                      3. component: 0/1 - plot force value
-%                      4. component: 0/1 - 2D(0) or 3D(1) view 
+%                      4. component: 0/1 - 2D(0) or 3D(1) view
 %
-%--------------------------------------------------------
-% Kurt Maute for ASEN 2001 Oct. 2006
-%   Revised Oct. 2007 by Sungeun Jeon
-%   Revised Sep. 2010 by Kurt Maute
-%--------------------------------------------------------
 
 figure(1);
 clf;
@@ -59,8 +53,8 @@ if nargin < 6; error('routine requires 6 input parameters'); end
 
 % extract
 
-[numnode, dim]=size(xyz);
-numelem = size(topo,1);
+[numnode, dim] = size(xyz);
+numelem        = size(topo,1);
 
 if dim ~= 3
    display('Error in plottruss: 3 coordinates are needed for array xyz');
@@ -69,8 +63,8 @@ end
 
 % extract min and max force values
 
-minfrc=floor(min(eforce));
-maxfrc=ceil(max(eforce));
+minfrc = floor(min(eforce));
+maxfrc = ceil(max(eforce));
 
 % define radius of bars
 
@@ -88,11 +82,11 @@ end
 
 figure(1)
 
-for i=1:numelem
-    na=topo(i,1);
-    nb=topo(i,2);
-    [xc,yc,zc]=plotbar(xyz(na,:),xyz(nb,:),radb);
-    cc=eforce(i)*ones(size(xc));
+for i = 1:numelem
+    na         = topo(i,1);
+    nb         = topo(i,2);
+    [xc,yc,zc] = plotbar(xyz(na,:),xyz(nb,:),radb);
+    cc         = eforce(i)*ones(size(xc));
     surf(xc,yc,zc,cc,'EdgeColor','none');
     if pltflags(2) > 0
         text((xyz(na,1)+xyz(nb,1))/2+1.8*radb,(xyz(na,2)+xyz(nb,2))/2+1.8*radb,(xyz(na,3)+xyz(nb,3))/2+1.8*radb,num2str(i));
@@ -110,7 +104,7 @@ if pltflags(1) > 0
             text(xyz(i,1)+1.8*radj,xyz(i,2)+1.5*radj,xyz(i,3)+1.3*radj,num2str(i));
     end
 end
-    
+
 colorbar;
 caxis([minfrc maxfrc])
 
@@ -144,11 +138,11 @@ set(findobj(gca,'type','surface'),...
     'SpecularStrength',.9,'SpecularExponent',25,...
     'BackFaceLighting','unlit')
 
-if pltflags(4) 
+if pltflags(4)
     % use default
 else
     % set view point to 0,0,1
-    view([0 0 1]);    
+    view([0 0 1]);
 end
 
 return
@@ -185,7 +179,7 @@ len=norm(xba);
 
 % stretch cylinder
 
-cmat=[len*zc' xc' yc']; 
+cmat=[len*zc' xc' yc'];
 
 % create transformation matrix
 
@@ -217,7 +211,7 @@ xc(1,:)=cpmat(:,1)+xa(1)*omat;
 xc(2,:)=cpmat(:,2)+xa(1)*omat;
 yc(1,:)=cpmat(:,3)+xa(2)*omat;
 yc(2,:)=cpmat(:,4)+xa(2)*omat;
-zc(1,:)=cpmat(:,5)+xa(3)*omat;  
-zc(2,:)=cpmat(:,6)+xa(3)*omat;  
+zc(1,:)=cpmat(:,5)+xa(3)*omat;
+zc(2,:)=cpmat(:,6)+xa(3)*omat;
 
 return
