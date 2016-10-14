@@ -3,7 +3,7 @@ function [Joints_Array, MemberConnectivity_Array, ReactionJoints_Array, Reaction
     %
     % read input file
     %
-    % input: inputfile - name of input file
+    % input: InputFile - name of input file
     %
     % output: Joints_Array             - coordinates of joints
     %         MemberConnectivity_Array - connectivity
@@ -12,6 +12,9 @@ function [Joints_Array, MemberConnectivity_Array, ReactionJoints_Array, Reaction
     %         LoadJoints_Array         - joint id where external load acts on
     %         LoadVectors_Array        - load vector
     %
+    % NOTE: This version was written by Jake on Oct 14.
+    % It removes the nasty while loop and switch/case statments from the original version. It should it reads more cleanly.
+
 
     % open inputfile
     fid = fopen(InputFile);
@@ -20,7 +23,7 @@ function [Joints_Array, MemberConnectivity_Array, ReactionJoints_Array, Reaction
         error('inputfile does not exist');
     end
 
-    % read number of joints, bars, reactions, loads
+    % Read number of joints, bars, reactions, loads
     tmp = sscanf(next_non_comment_line(fid),'%d%d%d%d%d');
 
     numjoints = tmp(1);
@@ -44,11 +47,11 @@ function [Joints_Array, MemberConnectivity_Array, ReactionJoints_Array, Reaction
     % check whether system satisfies static determiancy condition
     if 3*numjoints - 6 ~= numbars
         error('Truss is not statically determinate. NumJoints %d, NumBars %d. Should be %d bars.', ...
-         numjoints, numbars, (3*numjoints - 6));
+        numjoints, numbars, (3*numjoints - 6));
     end
 
 
-    % read coordinates of joints
+    % Read coordinates of joints
     for i = 1:numjoints
       tmp = sscanf(next_non_comment_line(fid),'%d%e%e%e');
 
