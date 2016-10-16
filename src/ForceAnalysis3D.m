@@ -1,4 +1,4 @@
-function [barforces, reacforces] = ForceAnalysis3D(Joints_Array, MemberConnectivity_Array, ReactionJoints_Array, ReactionVector_Array, LoadJoints_Array, LoadVectors_Array)
+function [BarForces, ReactionForces] = ForceAnalysis3DWithWeight(Joints_Array, MemberConnectivity_Array, ReactionJoints_Array, ReactionVector_Array, LoadJoints_Array, LoadVectors_Array)
 % function [barforces, reacforces] = forceanalysis3D(Joints_Array, MemberConnectivity_Array, ReactionJoints_Array, ReactionVector_Array, LoadJoints_Array, LoadVectors_Array)
 %
 % compute forces in bars and reaction forces
@@ -14,20 +14,21 @@ function [barforces, reacforces] = ForceAnalysis3D(Joints_Array, MemberConnectiv
 %         reacforces   - reaction forces
 
     % extract number of joints, bars, reactions, and loads
-    numjoints = size(Joints_Array,             1);
+    numjoints = size(Joints_Array, 1);
     numbars   = size(MemberConnectivity_Array, 1);
-    numreact  = size(ReactionJoints_Array,     1);
-    numloads  = size(LoadJoints_Array,         1);
+    numreact  = size(ReactionJoints_Array, 1);
+    numloads  = size(Joints_Array, 1);
 
     % number of equations
     numeqns = 3 * numjoints;
 
-    % Defines bar length per unit mass [kg/m]:
-    LengthPerUnitMass = .0953;
+    % Defines linear density:
+%     LengthPerUnitMass = .0953; % [kg/m]
+      LinearDensity = 0.0053421534; % [lb/in]
 
     % allocate arrays for linear system
     Amat = zeros(numeqns);
-    bvec = zeros(numeqns, 1);
+    bvec = zeros(numeqns,1);
 
     % build Amat - loop over all joints
 
@@ -36,7 +37,7 @@ function [barforces, reacforces] = ForceAnalysis3D(Joints_Array, MemberConnectiv
         % equation id numbers
         idx = 3*i-2;
         idy = 3*i-1;
-        idz = 3*i; %changed this
+        idz = 3*i; %change this
 
         % get all bars connected to joint
         [ibar, ijt] = find(MemberConnectivity_Array == i);
@@ -61,7 +62,7 @@ function [barforces, reacforces] = ForceAnalysis3D(Joints_Array, MemberConnectiv
             uvec   = vec_ij / norm(vec_ij);
 
             % add unit vector into Amat
-            Amat([idx idy idz], barid) = uvec; % added idz
+            Amat([idx idy idz], barid) = uvec; %added idz
         end
     end
 
@@ -72,16 +73,13 @@ function [barforces, reacforces] = ForceAnalysis3D(Joints_Array, MemberConnectiv
         jid = ReactionJoints_Array(i);
 
         % equation id numbers
-        idx = 3*jid-2;
-        idy = 3*jid-1;
-        idz = 3*jid-0; % added this
+        idx = 3 * jid - 2;
+        idy = 3 * jid - 1;
+        idz = 3 * jid;
 
         % add unit vector into Amat
         Amat([idx idy idz], numbars + i) = ReactionVector_Array(i,:); %added idz
     end
-
-    % Resizes array for weight:
-     LoadVectors_Array(3:6, 1:3) = 0;
 
     % Calclates bar weight:
     for i = 1:numbars
@@ -90,12 +88,16 @@ function [barforces, reacforces] = ForceAnalysis3D(Joints_Array, MemberConnectiv
         JointB = MemberConnectivity_Array(i,2);
 
         % Determines length of bar:
-        BarLength = [sum((Joints_Array(JointA, 1:3) - Joints_Array(JointB, 1:3)).^2)];
+        BarLength = sqrt(sum((Joints_Array(JointA,1:3) - ...
+            Joints_Array(JointB,1:3)).^2));
 
         % Calculates weight of bar:
-        BarWeight(i) = BarLength * LengthPerUnitMass * 9.81;
+        BarWeight(i) = BarLength * LinearDensity;
 
     end
+
+    % Resizes array for weight:
+     LoadVectors_Array(1:16,1:3) = 0;
 
     % Includes bar weight as an external force:
     % * Adds force evenly on the two joints connecting bar *
@@ -118,6 +120,12 @@ function [barforces, reacforces] = ForceAnalysis3D(Joints_Array, MemberConnectiv
                 LoadVectors_Array(5,3) = (Weight / 2) + LoadVectors_Array(5,3);
             case 6
                 LoadVectors_Array(6,3) = (Weight / 2) + LoadVectors_Array(6,3);
+            case 7
+                LoadVectors_Array(7,3) = (Weight / 2) + LoadVectors_Array(7,3);
+            case 8
+                LoadVectors_Array(8,3) = (Weight / 2) + LoadVectors_Array(8,3);
+            case 9
+                LoadVectors_Array(9,3) = (Weight / 2) + LoadVectors_Array(9,3);
         end
 
          % Determines joint to place the half the weight force to z comp:
@@ -134,12 +142,18 @@ function [barforces, reacforces] = ForceAnalysis3D(Joints_Array, MemberConnectiv
                 LoadVectors_Array(5,3) = (Weight / 2) + LoadVectors_Array(5,3);
             case 6
                 LoadVectors_Array(6,3) = (Weight / 2) + LoadVectors_Array(6,3);
-        end
+            case 7
+                LoadVectors_Array(7,3) = (Weight / 2) + LoadVectors_Array(7,3);
+            case 8
+                LoadVectors_Array(8,3) = (Weight / 2) + LoadVectors_Array(8,3);
+            case 9
+                LoadVectors_Array(9,3) = (Weight / 2) + LoadVectors_Array(9,3);
+            end
 
     end
 
     % Updates to inlude weight force acting on joints:
-    LoadJoints_Array(1:6,1) = 1:6;
+    LoadJoints_Array(1:16,1) = 1:16;
 
     % build load vector
     for i = 1:numloads
@@ -158,15 +172,18 @@ function [barforces, reacforces] = ForceAnalysis3D(Joints_Array, MemberConnectiv
 
     % check for invertability of Amat
     if rank(Amat) ~= numeqns
-        % disp(Amat);
-        error('Amat is rank defficient: %d < %d\n', rank(Amat), numeqns);
+        error('Amat is rank defficient: %d < %d\n',rank(Amat),numeqns);
     end
 
     % solve system
     xvec = Amat \ bvec;
 
     % extract forces in bars and reaction forces
-    barforces  = xvec(1:numbars);
-    reacforces = xvec((numbars + 1):end);
+    BarForces  = xvec(1:numbars);
+
+    % Converts to Newtons:
+    BarForces = BarForces * 4.44822;
+
+    ReactionForces = xvec((numbars + 1):end);
 
 end
