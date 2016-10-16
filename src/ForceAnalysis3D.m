@@ -36,7 +36,7 @@ function [barforces, reacforces] = ForceAnalysis3D(Joints_Array, MemberConnectiv
         % equation id numbers
         idx = 3*i-2;
         idy = 3*i-1;
-        idz = 3*i; %change this
+        idz = 3*i; %changed this
 
         % get all bars connected to joint
         [ibar, ijt] = find(MemberConnectivity_Array == i);
@@ -90,8 +90,7 @@ function [barforces, reacforces] = ForceAnalysis3D(Joints_Array, MemberConnectiv
         JointB = MemberConnectivity_Array(i,2);
 
         % Determines length of bar:
-        BarLength = [sum((Joints_Array(JointA,1:3) - ...
-            Joints_Array(JointB,1:3)).^2)];
+        BarLength = [sum((Joints_Array(JointA, 1:3) - Joints_Array(JointB, 1:3)).^2)];
 
         % Calculates weight of bar:
         BarWeight(i) = BarLength * LengthPerUnitMass * 9.81;
