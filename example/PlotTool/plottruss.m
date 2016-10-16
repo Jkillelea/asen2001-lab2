@@ -37,7 +37,7 @@ function plottruss(xyz, topo, eforce, fbc, rads, pltflags)
 %                        3 x 1 : [ bar, node, suported node]
 %
 %           pltflags - flags for printing annotation
-%                      (3 x 1)
+%                      (4 x 1)
 %                      1. component: 0/1 - plot node id numbers
 %                      2. component: 0/1 - plot bar id numbers
 %                      3. component: 0/1 - plot force value
